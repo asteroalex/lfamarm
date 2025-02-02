@@ -4,21 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Скоро появится...</title>
+    <!-- Вставка скрипта для рекламы -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         body {
             margin: 0;
             height: 100vh;
             background-color: black;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             font-family: 'Courier New', monospace;
             color: white;
             font-size: 2em;
         }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1.2em;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
     <div>Скоро появится...</div>
+    <button id="showAdButton">Show Ad</button>
+
+    <script>
+        // Эмуляция useCallback с обычными функциями
+        function onReward() {
+            alert('Reward');
+        }
+
+        function onError(result) {
+            alert(JSON.stringify(result, null, 4));
+        }
+
+        function showAd() {
+            const AdController = window.Adsgram.init({
+                blockId: "7577", // Используйте ваш реальный blockId
+                onReward: onReward,
+                onError: onError
+            });
+
+            AdController.showAd();
+        }
+
+        // Обработчик для кнопки
+        document.getElementById("showAdButton").addEventListener("click", showAd);
+    </script>
 </body>
 </html>
