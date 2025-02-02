@@ -35,30 +35,72 @@
 </head>
 <body>
     <div>Скоро появится...</div>
-    <button id="showAdButton">Show Ad</button>
+    <div id="root"></div> <!-- React будет рендерить сюда -->
 
+    <!-- Подключаем React и ReactDOM -->
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+
+    <!-- Скрипт с компонентом кнопки и хука -->
     <script>
-        // Эмуляция useCallback с обычными функциями
-        function onReward() {
-            alert('Reward');
+        // Кастомный хук для работы с Adsgram
+        function useAdsgram({ blockId, onReward, onError }) {
+          const AdControllerRef = React.useRef(undefined);
+
+          // Инициализация Adsgram SDK
+          React.useEffect(() => {
+            if (window.Adsgram) {
+              AdControllerRef.current = window.Adsgram.init({ blockId });
+            }
+          }, [blockId]);
+
+          // Функция для показа рекламы
+          return React.useCallback(async () => {
+            if (AdControllerRef.current) {
+              try {
+                await AdControllerRef.current.show();
+                onReward(); // Если реклама успешно просмотрена
+              } catch (result) {
+                onError(result); // Если ошибка при показе рекламы
+              }
+            } else {
+              onError({
+                error: true,
+                done: false,
+                state: 'load',
+                description: 'Adsgram script not loaded',
+              });
+            }
+          }, [onError, onReward]);
         }
 
-        function onError(result) {
-            alert(JSON.stringify(result, null, 4));
+        // Компонент кнопки для показа рекламы
+        function ShowAdButton() {
+          const onReward = React.useCallback(() => {
+            alert('Награда получена!');
+          }, []);
+
+          const onError = React.useCallback((result) => {
+            alert('Ошибка: ' + JSON.stringify(result, null, 4));
+          }, []);
+
+          // Используем кастомный хук
+          const showAd = useAdsgram({
+            blockId: '7577', // Замените на ваш реальный blockId
+            onReward,
+            onError
+          });
+
+          return (
+            React.createElement('button', { onClick: showAd }, 'Показать рекламу')
+          );
         }
 
-        function showAd() {
-            const AdController = window.Adsgram.init({
-                blockId: "7577", // Используйте ваш реальный blockId
-                onReward: onReward,
-                onError: onError
-            });
-
-            AdController.showAd();
-        }
-
-        // Обработчик для кнопки
-        document.getElementById("showAdButton").addEventListener("click", showAd);
+        // Рендерим компонент
+        ReactDOM.render(
+          React.createElement(ShowAdButton),
+          document.getElementById('root')
+        );
     </script>
 </body>
 </html>
