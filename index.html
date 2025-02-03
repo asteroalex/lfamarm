@@ -23,6 +23,7 @@
             align-items: center;
             height: 100vh;
             text-align: center;
+            padding: 10px;
         }
 
         .loading-screen, .main-menu {
@@ -90,20 +91,50 @@
         }
 
         .farm-button {
-    background: #008000;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 20px;
-    cursor: pointer;
-    margin-top: 15px;
-    opacity: 0;
-    animation: fadeIn 2s 6s forwards;
-    font-family: 'VT323', monospace; /* ШРИФТ КАК У САЙТА */
-}
+            background: #008000;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+            margin-top: 15px;
+            opacity: 0;
+            animation: fadeIn 2s 6s forwards;
+            font-family: 'VT323', monospace;
+            border-radius: 5px;
+        }
 
         .farm-button:hover {
             background: #00a000;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                font-size: 18px;
+                padding: 10px;
+            }
+
+            .typewriter {
+                font-size: 22px;
+            }
+
+            .menu-title {
+                font-size: 16px;
+                max-width: 90%;
+            }
+
+            .profile-header, .menu-header {
+                font-size: 20px;
+            }
+
+            .profile-info {
+                font-size: 16px;
+            }
+
+            .farm-button {
+                font-size: 18px;
+                padding: 12px 25px;
+            }
         }
     </style>
 </head>
