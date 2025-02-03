@@ -3,104 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Скоро появится...</title>
-    <!-- Вставка скрипта для рекламы -->
-    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <title>Майнинг В-баксов</title>
     <style>
-        body {
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #0f0;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
-            background-color: black;
+            text-align: center;
+        }
+
+        .loading-screen, .main-menu {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-family: 'Courier New', monospace;
-            color: white;
-            font-size: 2em;
         }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            font-size: 1.2em;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
+
+        .main-menu {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .typewriter {
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid #0f0;
+            font-size: 24px;
+            width: 0;
+            animation: typing 2s steps(20, end) forwards, blink 0.6s infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 230px; }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        .menu-title {
+            font-size: 18px;
+            max-width: 70%;
+            opacity: 0;
+            animation: fadeIn 2s 5s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .profile-header, .menu-header {
+            font-size: 22px;
             margin-top: 20px;
+            opacity: 0;
+            animation: fadeIn 2s 5.5s forwards;
         }
-        button:hover {
-            background-color: #45a049;
+
+        .profile-info {
+            font-size: 18px;
+            margin-top: 10px;
+            opacity: 0;
+            animation: fadeIn 2s 5.8s forwards;
+        }
+
+        .farm-button {
+    background: #008000;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 20px;
+    cursor: pointer;
+    margin-top: 15px;
+    opacity: 0;
+    animation: fadeIn 2s 6s forwards;
+    font-family: 'VT323', monospace; /* ШРИФТ КАК У САЙТА */
+}
+
+        .farm-button:hover {
+            background: #00a000;
         }
     </style>
 </head>
 <body>
-    <div>Скоро появится...</div>
-    <div id="root"></div> <!-- React будет рендерить сюда -->
 
-    <!-- Подключаем React и ReactDOM -->
-    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <div class="loading-screen">
+        <p class="typewriter">Запускаем майнеры... Запуск!</p>
+    </div>
 
-    <!-- Скрипт с компонентом кнопки и хука -->
+    <div class="main-menu">
+        <p class="menu-title">
+            Фармите в-баксы при помощи вашей энергии. Пока идет фарм - наша система майнит в-баксы и распределит их между майнером и вами, вы получаете больший процент. Энергия копится только когда вы оффлайн.
+        </p>
+        
+        <p class="profile-header">- - - Профиль - - -</p>
+        <p class="profile-info">ID: <span id="user-id"></span></p>
+        <p class="profile-info">Баланс: <span id="user-balance"></span> В-баксов</p>
+        <p class="profile-info">Энергия: <span id="user-energy"></span></p>
+
+        <p class="menu-header">- - - Фарминг - - -</p>
+        <button class="farm-button">Начать фарм</button>
+    </div>
+
     <script>
-        // Кастомный хук для работы с Adsgram
-        function useAdsgram({ blockId, onReward, onError }) {
-          const AdControllerRef = React.useRef(undefined);
-
-          // Инициализация Adsgram SDK
-          React.useEffect(() => {
-            if (window.Adsgram) {
-              AdControllerRef.current = window.Adsgram.init({ blockId });
+        function generateUserId() {
+            let length = Math.floor(Math.random() * (8 - 4 + 1)) + 4;
+            let id = '';
+            for (let i = 0; i < length; i++) {
+                id += Math.floor(Math.random() * 10);
             }
-          }, [blockId]);
-
-          // Функция для показа рекламы
-          return React.useCallback(async () => {
-            if (AdControllerRef.current) {
-              try {
-                await AdControllerRef.current.show();
-                onReward(); // Если реклама успешно просмотрена
-              } catch (result) {
-                onError(result); // Если ошибка при показе рекламы
-              }
-            } else {
-              onError({
-                error: true,
-                done: false,
-                state: 'load',
-                description: 'Adsgram script not loaded',
-              });
-            }
-          }, [onError, onReward]);
+            return id;
         }
 
-        // Компонент кнопки для показа рекламы
-        function ShowAdButton() {
-          const onReward = React.useCallback(() => {
-            alert('Награда получена!');
-          }, []);
+        // Загружаем данные из localStorage или устанавливаем дефолтные
+        let userId = localStorage.getItem('userId') || generateUserId();
+        let userBalance = parseFloat(localStorage.getItem('userBalance')) || 0.0;
+        let userEnergy = parseInt(localStorage.getItem('userEnergy')) || 5000;
 
-          const onError = React.useCallback((result) => {
-            alert('Ошибка: ' + JSON.stringify(result, null, 4));
-          }, []);
+        // Сохраняем данные в localStorage
+        localStorage.setItem('userId', userId);
+        localStorage.setItem('userBalance', userBalance);
+        localStorage.setItem('userEnergy', userEnergy);
 
-          // Используем кастомный хук
-          const showAd = useAdsgram({
-            blockId: '7577', // Замените на ваш реальный blockId
-            onReward,
-            onError
-          });
+        // Устанавливаем значения в HTML
+        document.getElementById('user-id').innerText = userId;
+        document.getElementById('user-balance').innerText = userBalance.toFixed(1);
+        document.getElementById('user-energy').innerText = userEnergy;
 
-          return (
-            React.createElement('button', { onClick: showAd }, 'Показать рекламу')
-          );
-        }
-
-        // Рендерим компонент
-        ReactDOM.render(
-          React.createElement(ShowAdButton),
-          document.getElementById('root')
-        );
+        // Переход в главное меню после загрузки
+        setTimeout(() => {
+            document.querySelector('.loading-screen').classList.add('hidden');
+            let menu = document.querySelector('.main-menu');
+            menu.style.visibility = "visible";
+            menu.style.opacity = "1";
+        }, 5000); // 2 сек анимация + 3 сек ожидание = 5 сек
     </script>
+
 </body>
 </html>
