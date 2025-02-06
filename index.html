@@ -23,10 +23,11 @@
             align-items: center;
             height: 100vh;
             text-align: center;
+            flex-direction: column;
             padding: 10px;
         }
 
-        .loading-screen, .main-menu {
+        .loading-screen, .main-menu, .info-page {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -34,16 +35,14 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-        }
-
-        .main-menu {
             opacity: 0;
             visibility: hidden;
-            transition: opacity 1s ease-in-out;
+            transition: opacity 0.5s ease-in-out;
         }
 
-        .hidden {
-            display: none;
+        .loading-screen {
+            opacity: 1;
+            visibility: visible;
         }
 
         .typewriter {
@@ -67,27 +66,17 @@
         .menu-title {
             font-size: 18px;
             max-width: 70%;
-            opacity: 0;
-            animation: fadeIn 2s 5s forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            margin-bottom: 15px;
         }
 
         .profile-header, .menu-header {
             font-size: 22px;
-            margin-top: 20px;
-            opacity: 0;
-            animation: fadeIn 2s 5.5s forwards;
+            margin-top: 15px;
         }
 
         .profile-info {
             font-size: 18px;
-            margin-top: 10px;
-            opacity: 0;
-            animation: fadeIn 2s 5.8s forwards;
+            margin-top: 5px;
         }
 
         .farm-button {
@@ -98,14 +87,35 @@
             font-size: 20px;
             cursor: pointer;
             margin-top: 15px;
-            opacity: 0;
-            animation: fadeIn 2s 6s forwards;
             font-family: 'VT323', monospace;
             border-radius: 5px;
         }
 
         .farm-button:hover {
             background: #00a000;
+        }
+
+        .nav-menu {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            font-size: 18px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            padding: 10px;
+            opacity: 0.7;
+        }
+
+        .nav-item:hover {
+            opacity: 1;
+            text-decoration: underline;
         }
 
         @media (max-width: 768px) {
@@ -135,13 +145,17 @@
                 font-size: 18px;
                 padding: 12px 25px;
             }
+
+            .nav-menu {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="loading-screen">
-        <p class="typewriter">Запускаем майнеры... Запуск!</p>
+        <p class="typewriter">Запускаем майнеры...</p>
     </div>
 
     <div class="main-menu">
@@ -155,41 +169,80 @@
         <p class="profile-info">Энергия: <span id="user-energy"></span></p>
 
         <p class="menu-header">- - - Фарминг - - -</p>
-        <button class="farm-button">Начать фарм</button>
+        <button class="farm-button" onclick="toggleFarm()">Начать фарм</button>
+    </div>
+
+    <div class="info-page">
+        <p class="menu-header">- - - Инфо - - -</p>
+        <p class="menu-title">
+            Lama farm предоставляет возможность фармить в-баксы абсолютно всем. Просто накопите энергию и запустите фарм, чтобы майнер начал зарабатывать для вас.
+        </p>
+        <p class="menu-header">- - - Когда будет доступен вывод? - - -</p>
+        <p class="menu-title">
+            Мы предпочитаем дать немного времени игрокам, чтобы они могли намайнить как можно больше в-баксов, и только потом могли бы вывести свои в-баксы.
+        </p>
+    </div>
+
+    <div class="nav-menu">
+        <span class="nav-item" onclick="showPage('main-menu')">Фарм</span>
+        <span class="nav-item">Задания</span>
+        <span class="nav-item" onclick="showPage('info-page')">Инфо</span>
     </div>
 
     <script>
-        function generateUserId() {
-            let length = Math.floor(Math.random() * (8 - 4 + 1)) + 4;
-            let id = '';
-            for (let i = 0; i < length; i++) {
-                id += Math.floor(Math.random() * 10);
-            }
-            return id;
-        }
-
-        // Загружаем данные из localStorage или устанавливаем дефолтные
-        let userId = localStorage.getItem('userId') || generateUserId();
+        let userId = localStorage.getItem('userId') || Math.floor(1000 + Math.random() * 90000000);
         let userBalance = parseFloat(localStorage.getItem('userBalance')) || 0.0;
-        let userEnergy = parseInt(localStorage.getItem('userEnergy')) || 5000;
+        let userEnergy = parseInt(localStorage.getItem('userEnergy')) || 2500;
+        let farming = false;
+        let farmInterval;
 
-        // Сохраняем данные в localStorage
         localStorage.setItem('userId', userId);
         localStorage.setItem('userBalance', userBalance);
         localStorage.setItem('userEnergy', userEnergy);
 
-        // Устанавливаем значения в HTML
         document.getElementById('user-id').innerText = userId;
-        document.getElementById('user-balance').innerText = userBalance.toFixed(1);
+        document.getElementById('user-balance').innerText = userBalance.toFixed(2);
         document.getElementById('user-energy').innerText = userEnergy;
 
-        // Переход в главное меню после загрузки
+        function toggleFarm() {
+            if (farming) {
+                clearInterval(farmInterval);
+                farming = false;
+                document.querySelector('.farm-button').innerText = "Начать фарм";
+            } else {
+                farming = true;
+                document.querySelector('.farm-button').innerText = "Остановить фарм";
+                farmInterval = setInterval(() => {
+                    if (userEnergy < 50) {
+                        toggleFarm();
+                        return;
+                    }
+                    let earned = (Math.random() * (0.11 - 0.04) + 0.04).toFixed(2);
+                    userBalance += parseFloat(earned);
+                    userEnergy -= 50;
+                    localStorage.setItem('userBalance', userBalance);
+                    localStorage.setItem('userEnergy', userEnergy);
+                    document.getElementById('user-balance').innerText = userBalance.toFixed(2);
+                    document.getElementById('user-energy').innerText = userEnergy;
+                }, 2000);
+            }
+        }
+
+        function showPage(page) {
+            document.querySelectorAll('.main-menu, .info-page').forEach(el => {
+                el.style.opacity = "0";
+                el.style.visibility = "hidden";
+            });
+            document.querySelector(`.${page}`).style.opacity = "1";
+            document.querySelector(`.${page}`).style.visibility = "visible";
+        }
+
         setTimeout(() => {
-            document.querySelector('.loading-screen').classList.add('hidden');
-            let menu = document.querySelector('.main-menu');
-            menu.style.visibility = "visible";
-            menu.style.opacity = "1";
-        }, 5000); // 2 сек анимация + 3 сек ожидание = 5 сек
+            document.querySelector('.loading-screen').style.display = "none";
+            document.querySelector('.nav-menu').style.opacity = "1";
+            document.querySelector('.nav-menu').style.visibility = "visible";
+            showPage('main-menu');
+        }, 3000);
     </script>
 
 </body>
